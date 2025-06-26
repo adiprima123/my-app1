@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const topikData = [
   [
@@ -50,91 +52,206 @@ const Topik = ({
   const [currentParagraph, setCurrentParagraph] = useState(0);
 
   const handleNext = () => {
+    // Jika masih ada paragraf dalam topik saat ini
     if (currentParagraph + 1 < topikData[currentTopik].length) {
       setCurrentParagraph(currentParagraph + 1);
-    } else if (currentTopik + 1 < topikData.length) {
-      const nextTopik = currentTopik + 1;
-      setCurrentTopik(nextTopik);
-      setCurrentParagraph(0);
-      updateProgress(nextTopik + 1);
-    } else {
-      updateProgress(5);
-      onComplete();
+    } 
+    // Jika sudah selesai semua paragraf dalam topik saat ini
+    else {
+      // Update progress untuk topik yang sudah selesai
+      updateProgress(currentTopik + 1);
+      
+      // Jika masih ada topik berikutnya
+      if (currentTopik + 1 < topikData.length) {
+        setCurrentTopik(currentTopik + 1);
+        setCurrentParagraph(0);
+      } 
+      // Jika sudah selesai semua topik
+      else {
+        onComplete();
+      }
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.subHeader}>📖 Topik {currentTopik + 1}</Text>
-
-        {topikData[currentTopik]
-          .slice(0, currentParagraph + 1)
-          .map((para, idx) => (
-            <View key={idx} style={styles.paragraphBox}>
-              <Text style={styles.explanationText}>{para}</Text>
-            </View>
-          ))}
-
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.buttonText}>
-            {currentParagraph + 1 < topikData[currentTopik].length
-              ? "Next"
-              : currentTopik + 1 < topikData.length
-              ? "Next Topik"
-              : "Mulai Quiz"}
+    <LinearGradient
+      colors={['#f8f9ff', '#e6f0ff']}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <LinearGradient
+            colors={['#2575fc', '#6a11cb']}
+            style={[styles.progressBar, { 
+              width: `${((currentTopik + (currentParagraph + 1)/topikData[currentTopik].length)/topikData.length)*100}%` 
+            }]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          />
+          <Text style={styles.progressText}>
+            Topik {currentTopik + 1}/{topikData.length} • 
+            Paragraf {currentParagraph + 1}/{topikData[currentTopik].length}
           </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        </View>
+
+        {/* Content Card */}
+        <View style={styles.card}>
+          <View style={styles.header}>
+            <LinearGradient
+              colors={['#2575fc', '#6a11cb']}
+              style={styles.topicBadge}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.topicNumber}>Topik {currentTopik + 1}</Text>
+            </LinearGradient>
+          </View>
+
+          <View style={styles.content}>
+            {topikData[currentTopik]
+              .slice(0, currentParagraph + 1)
+              .map((para, idx) => (
+                <View key={idx} style={styles.paragraphBox}>
+                  <View style={styles.bulletPoint}>
+                    <MaterialIcons name="check-circle" size={16} color="#2575fc" />
+                  </View>
+                  <Text style={styles.explanationText}>{para}</Text>
+                </View>
+              ))}
+          </View>
+
+          <TouchableOpacity 
+            style={styles.nextButton} 
+            onPress={handleNext}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#2575fc', '#6a11cb']}
+              style={styles.gradientButton}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.buttonText}>
+                {currentParagraph + 1 < topikData[currentTopik].length
+                  ? "Lanjut ke Paragraf Berikutnya"
+                  : currentTopik + 1 < topikData.length
+                  ? "Lanjut ke Topik " + (currentTopik + 2)
+                  : "Selesai & Mulai Quiz"}
+              </Text>
+              <MaterialIcons 
+                name={currentParagraph + 1 < topikData[currentTopik].length 
+                  ? "arrow-forward" 
+                  : currentTopik + 1 < topikData.length 
+                  ? "navigate-next" 
+                  : "quiz"} 
+                size={20} 
+                color="#fff" 
+              />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 14,
-    backgroundColor: "#f5f6fa",
+    flex: 1,
+  },
+  scrollContainer: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  progressContainer: {
+    height: 6,
+    backgroundColor: '#e0e8ff',
+    borderRadius: 3,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  progressText: {
+    textAlign: 'center',
+    color: '#2575fc',
+    fontSize: 12,
+    marginTop: 5,
+    fontWeight: '500',
   },
   card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 5,
-    elevation: 3,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#2575fc',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
   },
-  subHeader: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#2d3436",
-    marginBottom: 12,
-    textAlign: "center",
+  header: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  topicBadge: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    shadowColor: '#2575fc',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  topicNumber: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  content: {
+    marginBottom: 20,
   },
   paragraphBox: {
-    backgroundColor: "#ecf0f1",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
+    flexDirection: 'row',
+    backgroundColor: '#f8f9ff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  bulletPoint: {
+    marginRight: 10,
+    marginTop: 2,
   },
   explanationText: {
-    fontSize: 14.5,
-    color: "#2d3436",
+    flex: 1,
+    fontSize: 15,
+    color: '#333',
     lineHeight: 22,
   },
   nextButton: {
-    backgroundColor: "#00b894",
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-    borderRadius: 10,
-    alignSelf: "center",
-    marginTop: 16,
+    borderRadius: 15,
+    overflow: 'hidden',
+    shadowColor: '#2575fc',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  gradientButton: {
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "bold",
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginRight: 10,
   },
 });
 

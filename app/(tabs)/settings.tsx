@@ -1,18 +1,21 @@
 import { ScrollView, TouchableOpacity, StyleSheet, Text, View, Image } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const MenuItem = ({ icon, label }) => (
-  <TouchableOpacity style={styles.menuItem}>
+const MenuItem = ({ icon, label, last }) => (
+  <TouchableOpacity style={[styles.menuItem, !last && styles.menuItemBorder]}>
     <View style={styles.menuLeft}>
-      {icon}
+      <View style={styles.iconContainer}>
+        {icon}
+      </View>
       <Text style={styles.menuLabel}>{label}</Text>
     </View>
-    <Feather name="chevron-right" size={24} color="#B0C4DE" />
-  </TouchableOpacity>
+    <Feather name="chevron-right" size={20} color="#B0C4DE" />
+  </TouchableOpacity> 
 );
 
 export default function SettingsTab() {
@@ -38,32 +41,109 @@ export default function SettingsTab() {
 
   return (
     <SafeAreaProvider>
-      <ScrollView style={styles.container}>
-        <View style={styles.headerCard}>
-          <Image
-            source={{ uri: image || 'https://reactjs.org/logo-og.png' }}
-            style={styles.profileImage}
-          />
-          <Text style={styles.name}>{name || 'Adiprima Raharja'}</Text>
-          <Text style={styles.email}>{email || 'diprimzzkingz@gmail.com'}</Text>
-          <TouchableOpacity style={styles.editButton} onPress={() => router.push('/EditProfile')}>
-            <Text style={styles.editText}>Edit Profile</Text>
-          </TouchableOpacity>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Profile Header with Gradient */}
+        <LinearGradient
+          colors={['#2575fc', '#6a11cb']}
+          style={styles.headerGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <View style={styles.profileHeader}>
+            <TouchableOpacity onPress={() => router.push('/EditProfile')}>
+              <Image
+                source={{ uri: image || 'https://randomuser.me/api/portraits/men/1.jpg' }}
+                style={styles.profileImage}
+              />
+              <View style={styles.editIcon}>
+                <Feather name="edit-3" size={16} color="#fff" />
+              </View>
+            </TouchableOpacity>
+            
+            <Text style={styles.name}>{name || 'Adiprima Raharja'}</Text>
+            <Text style={styles.email}>{email || 'diprimzzkingz@gmail.com'}</Text>
+            
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>24</Text>
+                <Text style={styles.statLabel}>Kursus</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>89%</Text>
+                <Text style={styles.statLabel}>Progress</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>12</Text>
+                <Text style={styles.statLabel}>Sertifikat</Text>
+              </View>
+            </View>
+          </View>
+        </LinearGradient>
+
+        {/* Menu Cards */}
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionTitle}>Akun Saya</Text>
+          
+          <View style={styles.menuCard}>
+            <MenuItem 
+              icon={<MaterialIcons name="favorite-border" size={22} color="#2575fc" />} 
+              label="Konten Disukai" 
+            />
+            <MenuItem 
+              icon={<Feather name="download" size={22} color="#2575fc" />} 
+              label="Unduhan Saya" 
+            />
+            <MenuItem 
+              icon={<Feather name="credit-card" size={22} color="#2575fc" />} 
+              label="Langganan" 
+              last
+            />
+          </View>
+          
+          <Text style={styles.sectionTitle}>Pengaturan</Text>
+          
+          <View style={styles.menuCard}>
+            <MenuItem 
+              icon={<Feather name="globe" size={22} color="#2575fc" />} 
+              label="Bahasa" 
+            />
+            <MenuItem 
+              icon={<Feather name="bell" size={22} color="#2575fc" />} 
+              label="Notifikasi" 
+            />
+            <MenuItem 
+              icon={<Feather name="shield" size={22} color="#2575fc" />} 
+              label="Privasi & Keamanan" 
+              last
+            />
+          </View>
+          
+          <Text style={styles.sectionTitle}>Lainnya</Text>
+          
+          <View style={styles.menuCard}>
+            <MenuItem 
+              icon={<Feather name="help-circle" size={22} color="#2575fc" />} 
+              label="Bantuan" 
+            />
+            <MenuItem 
+              icon={<Feather name="info" size={22} color="#2575fc" />} 
+              label="Tentang Aplikasi" 
+            />
+            <MenuItem 
+              icon={<Feather name="star" size={22} color="#2575fc" />} 
+              label="Beri Rating" 
+              last
+            />
+          </View>
         </View>
 
-        <View style={styles.menuCard}>
-          <MenuItem icon={<Feather name="heart" size={22} color="#4682B4" />} label="Suka" />
-          <MenuItem icon={<Feather name="download" size={22} color="#4682B4" />} label="Unduhan" />
-          <View style={styles.separator} />
-          <MenuItem icon={<Feather name="globe" size={22} color="#4682B4" />} label="Bahasa" />
-          <MenuItem icon={<Feather name="map-pin" size={22} color="#4682B4" />} label="Lokasi" />
-          <MenuItem icon={<Feather name="monitor" size={22} color="#4682B4" />} label="Mode Dekstop" />
-          <MenuItem icon={<Feather name="rss" size={22} color="#4682B4" />} label="Referensi" />
-          <MenuItem icon={<Feather name="credit-card" size={22} color="#4682B4" />} label="Langganan" />
-        </View>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Logging out')}>
-          <Text style={styles.logoutText}>Logout</Text>
+        {/* Logout Button */}
+        <TouchableOpacity 
+          style={styles.logoutButton}
+          onPress={() => console.log('Logging out')}
+        >
+          <Feather name="log-out" size={20} color="#FF4757" />
+          <Text style={styles.logoutText}>Keluar dari Akun</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaProvider>
@@ -72,93 +152,145 @@ export default function SettingsTab() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#E9F2FB',
     flex: 1,
+    backgroundColor: '#f8f9ff',
   },
-  headerCard: {
+  headerGradient: {
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 30,
+    shadowColor: '#2575fc',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  profileHeader: {
     alignItems: 'center',
-    paddingVertical: 30,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
-    elevation: 4,
+    paddingTop: 50,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: '#4682B4',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  editIcon: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#2575fc',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   name: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '700',
-    marginTop: 10,
-    color: '#333',
+    marginTop: 15,
+    color: '#fff',
   },
   email: {
-    fontSize: 14,
-    color: '#777',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 5,
   },
-  editButton: {
-    marginTop: 12,
-    backgroundColor: '#4682B4',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 25,
+    paddingHorizontal: 30,
   },
-  editText: {
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: '700',
     color: '#fff',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 5,
+  },
+  menuSection: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: '600',
+    color: '#6a11cb',
+    marginTop: 25,
+    marginBottom: 12,
+    marginLeft: 10,
   },
   menuCard: {
     backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    paddingVertical: 8,
+    borderRadius: 16,
+    paddingHorizontal: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 5,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 15,
   },
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 18,
+  },
+  menuItemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f5',
   },
   menuLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(37, 117, 252, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
   menuLabel: {
     fontSize: 16,
-    marginLeft: 14,
     color: '#333',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 8,
-    marginHorizontal: 20,
+    fontWeight: '500',
   },
   logoutButton: {
-    backgroundColor: '#FF6347',
-    marginHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginBottom: 30,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   logoutText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: '#FF4757',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 10,
   },
 });
